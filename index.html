@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Horoscope Generator</title>
+    <script src="https://tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-slate-800 rounded-2xl shadow-xl p-6 border border-slate-700">
+        <h1 class="text-3xl font-extrabold text-center text-indigo-400 mb-6">✨ Daily Horoscope</h1>
+        
+        <form id="horoscopeForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">Select Birth Date</label>
+                <input type="date" id="birthdate" required class="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 font-semibold py-2 rounded-lg transition">Generate Prediction</button>
+        </form>
+
+        <div id="resultCard" class="mt-6 hidden space-y-4 border-t border-slate-700 pt-4">
+            <div class="text-center">
+                <span class="text-sm uppercase tracking-wider text-slate-400">Your Zodiac Sign</span>
+                <h2 id="zodiacSign" class="text-2xl font-bold text-indigo-300"></h2>
+            </div>
+            <div class="space-y-2 text-sm">
+                <p>❤️ <strong>Love:</strong> <span id="loveText"></span></p>
+                <p>💼 <strong>Career:</strong> <span id="careerText"></span></p>
+                <p>🌿 <strong>Wellness:</strong> <span id="wellnessText"></span></p>
+            </div>
+            <div class="flex justify-between text-xs bg-slate-700/50 p-3 rounded-lg border border-slate-600">
+                <p>🔮 <strong>Lucky Number:</strong> <span id="luckyNum"></span></p>
+                <p>🎨 <strong>Lucky Color:</strong> <span id="luckyColor"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('horoscopeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const dateVal = document.getElementById('birthdate').value;
+            if(!dateVal) return;
+
+            const dateObj = new Date(dateVal);
+            const month = dateObj.getMonth() + 1;
+            const day = dateObj.getDate();
+
+            try {
+                const res = await fetch(`/api/horoscope?month=${month}&day=${day}`);
+                const data = await res.json();
+
+                document.getElementById('zodiacSign').innerText = data.zodiac;
+                document.getElementById('loveText').innerText = data.love;
+                document.getElementById('careerText').innerText = data.career;
+                document.getElementById('wellnessText').innerText = data.wellness;
+                document.getElementById('luckyNum').innerText = data.lucky_number;
+                document.getElementById('luckyColor').innerText = data.lucky_color;
+                
+                document.getElementById('resultCard').classList.remove('hidden');
+            } catch (err) {
+                alert("Failed to connect to backend server.");
+            }
+        });
+    </script>
+</body>
+</html>
