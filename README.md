@@ -1,0 +1,1 @@
+# horroscope-generator
