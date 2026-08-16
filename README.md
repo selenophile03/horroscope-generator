@@ -1,4 +1,4 @@
-# horroscope-generator
+
 # Horoscope Generator
 
 A lightweight, local self-hosted web application that calculates astrological zodiac signs based on birth dates and generates daily personal overview metrics. Built on a split architecture using a FastAPI Python backend service and a native JavaScript/Tailwind CSS frontend dashboard.
