@@ -1,16 +1,16 @@
 const ZODIAC_SIGNS = [
-    { name: "Capricorn", element: "Earth", start:, end: [1, 19] },
-    { name: "Aquarius", element: "Air", start:, end: [2, 18] },
-    { name: "Pisces", element: "Water", start:, end: [3, 20] },
-    { name: "Aries", element: "Fire", start:, end: [4, 19] },
-    { name: "Taurus", element: "Earth", start:, end: [5, 20] },
-    { name: "Gemini", element: "Air", start:, end: [6, 20] },
-    { name: "Cancer", element: "Water", start:, end: [7, 22] },
-    { name: "Leo", element: "Fire", start:, end: [8, 22] },
-    { name: "Virgo", element: "Earth", start:, end: [9, 22] },
-    { name: "Libra", element: "Air", start:, end: [10, 22] },
-    { name: "Scorpio", element: "Water", start:, end: [11, 21] },
-    { name: "Sagittarius", element: "Fire", start:, end: [12, 21] }
+    { name: "Capricorn", element: "Earth", start: [12, 22], end: [1, 19] },
+    { name: "Aquarius", element: "Air", start: [1, 20], end: [2, 18] },
+    { name: "Pisces", element: "Water", start: [2, 19], end: [3, 20] },
+    { name: "Aries", element: "Fire", start: [3, 21], end: [4, 19] },
+    { name: "Taurus", element: "Earth", start: [4, 20], end: [5, 20] },
+    { name: "Gemini", element: "Air", start: [5, 21], end: [6, 20] },
+    { name: "Cancer", element: "Water", start: [6, 21], end: [7, 22] },
+    { name: "Leo", element: "Fire", start: [7, 23], end: [8, 22] },
+    { name: "Virgo", element: "Earth", start: [8, 23], end: [9, 22] },
+    { name: "Libra", element: "Air", start: [9, 23], end: [10, 22] },
+    { name: "Scorpio", element: "Water", start: [10, 23], end: [11, 21] },
+    { name: "Sagittarius", element: "Fire", start: [11, 22], end: [12, 21] }
 ];
 
 const LOVE_PROFILES = [
@@ -28,12 +28,11 @@ const LIFE_TIMELINES = [
 ];
 
 function getZodiacSign(month, day) {
-    // Standard rule matching engine for dates overlapping calendar lines
     return ZODIAC_SIGNS.find(sign => {
         const [sMonth, sDay] = sign.start;
         const [eMonth, eDay] = sign.end;
         return (month === sMonth && day >= sDay) || (month === eMonth && day <= eDay);
-    }) || ZODIAC_SIGNS[0]; // Fallback to Capricorn if boundary edge is missed
+    }) || ZODIAC_SIGNS[0];
 }
 
 function handleCalculation() {
@@ -41,23 +40,19 @@ function handleCalculation() {
     if (!dobValue) return;
 
     const dob = new Date(dobValue);
-    const month = dob.getMonth() + 1; // Correct 0-indexed offset
+    const month = dob.getMonth() + 1; 
     const day = dob.getDate();
     const birthYear = dob.getFullYear();
 
-    // Map properties out
     const sign = getZodiacSign(month, day);
     
-    // Create a predictable index seed based on birth data so metrics stay consistent per user
     const dateSeed = day + month + birthYear;
     const loveIndex = dateSeed % LOVE_PROFILES.length;
     const timelineIndex = (dateSeed + 2) % LIFE_TIMELINES.length;
 
-    // Standard baseline calculation metrics
-    const calculatedAge = 74 + (dateSeed % 23); // Consistent mathematical result between 74 and 97
+    const calculatedAge = 74 + (dateSeed % 23); 
     const luckyYear = birthYear + 28 + (dateSeed % 12); 
 
-    // Inject metrics straight into DOM targets
     document.getElementById('output-sign').textContent = sign.name;
     document.getElementById('output-element').textContent = sign.element;
     document.getElementById('love-text').textContent = LOVE_PROFILES[loveIndex];
