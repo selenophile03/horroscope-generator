@@ -4,7 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Life Path & Destiny Generator</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #0b0b0f; color: #cbd5e1; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .app-wrapper { width: 100%; max-width: 550px; }
+        .generator-container { background: #13131f; border: 1px solid #232336; border-radius: 12px; padding: 32px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); }
+        header { text-align: center; margin-bottom: 28px; }
+        header h1 { font-size: 22px; font-weight: 600; margin-bottom: 8px; color: #fff; }
+        header p { font-size: 14px; color: #94a3b8; line-height: 1.4; }
+        .control-panel { display: flex; gap: 12px; margin-bottom: 28px; }
+        input[type="date"] { flex-grow: 1; background: #1c1c2e; border: 1px solid #31314d; color: #fff; padding: 12px; font-size: 14px; border-radius: 6px; outline: none; }
+        button { background: #4f46e5; color: #fff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 500; border-radius: 6px; cursor: pointer; }
+        button:hover { background: #4338ca; }
+        .output-card { background: #181829; border: 1px solid #2d2d44; border-radius: 8px; padding: 24px; }
+        .hidden { display: none; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #232336; padding-bottom: 12px; }
+        #output-sign { font-size: 20px; color: #fff; }
+        .element-badge { font-size: 12px; background: #252538; padding: 4px 10px; border-radius: 4px; color: #818cf8; text-transform: uppercase; }
+        .reading-section { margin-bottom: 20px; }
+        .reading-section h3 { font-size: 14px; color: #f1f5f9; margin-bottom: 6px; text-transform: uppercase; }
+        .reading-section p { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+        .meta-metrics { display: flex; gap: 24px; font-size: 13px; color: #64748b; border-top: 1px solid #232336; padding-top: 14px; }
+        .meta-metrics span { color: #fff; font-weight: 600; }
+    </style>
 </head>
 <body>
     <div class="app-wrapper">
@@ -24,17 +46,14 @@
                     <h2 id="output-sign">Zodiac Sign</h2>
                     <span id="output-element" class="element-badge">Element</span>
                 </div>
-                
                 <div class="reading-section">
                     <h3>💘 Love Life & Relationships</h3>
                     <p id="love-text"></p>
                 </div>
-
                 <div class="reading-section">
                     <h3>⏳ Longevity & Core Timeline</h3>
                     <p id="timeline-text"></p>
                 </div>
-
                 <div class="meta-metrics">
                     <div><strong>Calculated Lifespan:</strong> <span id="meta-age">--</span> years</div>
                     <div><strong>Lucky Year:</strong> <span id="meta-year">--</span></div>
@@ -42,6 +61,70 @@
             </div>
         </main>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        const ZODIAC_SIGNS = [
+            { name: "Capricorn", element: "Earth", start: [12, 22], end: [1, 19] },
+            { name: "Aquarius", element: "Air", start: [1, 20], end: [2, 18] },
+            { name: "Pisces", element: "Water", start: [2, 19], end: [3, 20] },
+            { name: "Aries", element: "Fire", start: [3, 21], end: [4, 19] },
+            { name: "Taurus", element: "Earth", start: [4, 20], end: [5, 20] },
+            { name: "Gemini", element: "Air", start: [5, 21], end: [6, 20] },
+            { name: "Cancer", element: "Water", start: [6, 21], end: [7, 22] },
+            { name: "Leo", element: "Fire", start: [7, 23], end: [8, 22] },
+            { name: "Virgo", element: "Earth", start: [8, 23], end: [9, 22] },
+            { name: "Libra", element: "Air", start: [9, 23], end: [10, 22] },
+            { name: "Scorpio", element: "Water", start: [10, 23], end: [11, 21] },
+            { name: "Sagittarius", element: "Fire", start: [11, 22], end: [12, 21] }
+        ];
+
+        const LOVE_PROFILES = [
+            "You seek strong independent bonds. Your relationships thrive when built on mutual space and project collaboration rather than emotional hyper-dependency.",
+            "Deeply protective and highly analytical, your love life scales up significantly once basic vulnerabilities are safely shared with a trusted partner.",
+            "A fluid and naturally empathetic connection style means you absorb your partner's moods. Guard your boundaries carefully to avoid burnout.",
+            "Driven by immediate spark and shared ideals, your primary challenge is maintaining structural long-term stability once the initial novelty evens out."
+        ];
+
+        const LIFE_TIMELINES = [
+            "Your path points to structural mid-life transitions where prior career investments drop away to open up major independent creative work.",
+            "A highly balanced trajectory marked by rapid early development followed by a deliberate, peaceful deceleration focused on mentorship and legacy.",
+            "Prone to unexpected cyclical pivots. You will fundamentally reinvent your core lifestyle profile at least twice during your lifespan.",
+            "A steady, linear build toward complete financial and spatial security, ensuring your later decades are characterized by profound autonomy."
+        ];
+
+        function getZodiacSign(month, day) {
+            return ZODIAC_SIGNS.find(sign => {
+                const [sMonth, sDay] = sign.start;
+                const [eMonth, eDay] = sign.end;
+                return (month === sMonth && day >= sDay) || (month === eMonth && day <= eDay);
+            }) || ZODIAC_SIGNS[0];
+        }
+
+        document.getElementById('generate-btn').addEventListener('click', () => {
+            const dobValue = document.getElementById('dob-input').value;
+            if (!dobValue) return;
+
+            const dob = new Date(dobValue);
+            const month = dob.getMonth() + 1; 
+            const day = dob.getDate();
+            const birthYear = dob.getFullYear();
+
+            const sign = getZodiacSign(month, day);
+            const dateSeed = day + month + birthYear;
+            
+            const loveIndex = dateSeed % LOVE_PROFILES.length;
+            const timelineIndex = (dateSeed + 2) % LIFE_TIMELINES.length;
+            const calculatedAge = 74 + (dateSeed % 23); 
+            const luckyYear = birthYear + 28 + (dateSeed % 12); 
+
+            document.getElementById('output-sign').textContent = sign.name;
+            document.getElementById('output-element').textContent = sign.element;
+            document.getElementById('love-text').textContent = LOVE_PROFILES[loveIndex];
+            document.getElementById('timeline-text').textContent = LIFE_TIMELINES[timelineIndex];
+            document.getElementById('meta-age').textContent = calculatedAge;
+            document.getElementById('meta-year').textContent = luckyYear;
+            document.getElementById('output-card').classList.remove('hidden');
+        });
+    </script>
 </body>
 </html>
